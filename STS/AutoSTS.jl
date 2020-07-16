@@ -26,10 +26,10 @@ mutable struct STS
 
     function STS(path::String)
         data = readdlm(path, '\t', Float64)
-        f = match(r"fr(.+?)_(.+?)_", path)
-        V = match(r"_V(.+?)_(.+?)_", path)
-        fmin, fmax = parse(Float64, f[1]), parse(Float64, f[2])
-        Vmin, Vmax = parse(Float64, V[1]), parse(Float64, V[2])
+        fs = match(r"fr(.+?)_(.+?)_", path)
+        Vs = match(r"_V(.+?)_(.+?)_", path)
+        fmin, fmax = parse(Float64, fs[1]), parse(Float64, fs[2])
+        Vmin, Vmax = parse(Float64, Vs[1]), parse(Float64, Vs[2])
         Δf = (fmax - fmin) / (size(data, 1) - 1)
         ΔV = (Vmax - Vmin) / (size(data, 2) - 1)
         f_range = fmin:Δf:fmax
