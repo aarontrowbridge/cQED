@@ -2,7 +2,7 @@ module DataGen
 
 using Distributions
 
-export S21Params, S₂₁
+export S21Params, S₂₁, Qloaded
 
 mutable struct S21Params{T<:AbstractFloat}
     a::T
@@ -23,6 +23,8 @@ function S₂₁(f::T, p::S21Params; SNR::T=100.) where {T<:AbstractFloat}
             (1 - (Ql / p.Qc) * exp(im * p.ϕ) / (1 + 2im * Ql * (f / p.fᵣ - 1)))
     z
 end
+
+Qloaded(Qi, Qc) = 1 / (1 / Qi + real(1 / Qc))
 
 
 end

@@ -1,6 +1,6 @@
 module CircleFit
 
-using LinearAlgebra, NLsolve
+using LinearAlgebra, NLsolve, JuMP, Ipopt
 
 export FitCircle
 
@@ -20,8 +20,7 @@ struct FitCircle{T<:AbstractFloat}
     function FitCircle{T}(xs::Vector{T}, ys::Vector{T}) where {T<:AbstractFloat}
         N = length(xs)
         M̂ = M(xs, ys, N)
-        f!(F, η) = setindex!(F, det(M̂ - η[1] * B̂), 1)
-        η′ = nlsolve(f!, [0.], method = :newton, ftol = 1e-12).zero[1]
+        η′ = solveNL(M̂)
         A′ = nullspace(M̂ - η′ * B̂)[:,1]
         A, B, C, D = A′
         xc = -B / 2A
@@ -36,18 +35,24 @@ function M(x::Vector{T}, y::Vector{T}, N::Int) where {T<:AbstractFloat}
 
     Mxx = dot(x, x); Myy = dot(y, y); Mww = dot(w, w)
     Mxw = dot(x, w); Myw = dot(y, w); Mxy = dot(x, y)
-    Mx = sum(x); My = sum(y); Mw = sum(w)
+    Mx = sum(x);     My = sum(y);     Mw = sum(w)
 
-    [Mww Mxw Myw Mw;
-     Mxw Mxx Mxy Mx;
-     Myw Mxy Myy My;
-     Mw  Mx  My  N]
+    return [Mww Mxw Myw Mw;
+            Mxw Mxx Mxy Mx;
+            Myw Mxy Myy My;
+            Mw  Mx  My  N]
 end
 
-function SNR(circ::FitCircle)
+function solveNL(M̂::Matrix{T}) where {T<:AbstractFloat}
+    f!(F, η) = setindex!(F, det(M̂ - η[1] * B̂), 1)
+    sol = nlsolve(f!, [0.], method = :newton, ftol = 1e-12)
+    return sol.zero[1]
+end
+
+function SNR(circ::FitCircle{T}) where {T<:AbstractFloat}
     rs = [sqrt((x - circ.xc)^2 + (y - circ.yc)^2) for (x, y) in zip(circ.xs, circ.ys)]
     σᵣ = sqrt(1 / (circ.N - 1) * sum(rs .- circ.r₀))
-    circ.r₀ / σᵣ
+    return circ.r₀ / σᵣ
 end
 
 
