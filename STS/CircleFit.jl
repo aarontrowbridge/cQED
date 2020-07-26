@@ -32,16 +32,16 @@ struct FitCircle{T<:AbstractFloat}
 end
 
 function M(x::Vector{T}, y::Vector{T}, N::Int) where {T<:AbstractFloat}
-    z = [xᵢ^2 + yᵢ^2 for (xᵢ, yᵢ) in zip(x, y)]
+    w = [xᵢ^2 + yᵢ^2 for (xᵢ, yᵢ) in zip(x, y)]
 
-    Mxx = dot(x, x); Myy = dot(y, y); Mzz = dot(z, z)
-    Mxz = dot(x, z); Myz = dot(y, z); Mxy = dot(x, y)
-    Mx = sum(x); My = sum(y); Mz = sum(z)
+    Mxx = dot(x, x); Myy = dot(y, y); Mww = dot(w, w)
+    Mxw = dot(x, w); Myw = dot(y, w); Mxy = dot(x, y)
+    Mx = sum(x); My = sum(y); Mw = sum(w)
 
-    [Mzz Mxz Myz Mz;
-     Mxz Mxx Mxy Mx;
-     Myz Mxy Myy My;
-     Mz  Mx  My  N]
+    [Mww Mxw Myw Mw;
+     Mxw Mxx Mxy Mx;
+     Myw Mxy Myy My;
+     Mw  Mx  My  N]
 end
 
 function SNR(circ::FitCircle)
