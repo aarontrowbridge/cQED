@@ -11,6 +11,7 @@ struct S21Fit{T<:AbstractFloat}
     Ql::T
     Qc::Complex{T}
     θ₀::T
+    ϕ₀::T
 
     function S21Fit{T}(fs::Vector{T},
                        zs::Vector{Complex{T}}) where {T<:AbstractFloat}
@@ -24,7 +25,7 @@ struct S21Fit{T<:AbstractFloat}
         θ₀, Ql, fᵣ = phase_angle_fit(fs, angle.(zs), θ₀ᵢ, fᵣᵢ)
         Qc = Ql / (2 * circle.r₀) * exp(im * ϕ₀)
         Qi = 1 / (1 / Ql - real(1 / Qc))
-        new(fᵣ, Qi, Ql, Qc, θ₀)
+        new(fᵣ, Qi, Ql, Qc, θ₀, ϕ₀)
     end
 end
 
@@ -32,7 +33,7 @@ function phase_angle_fit(fs::Vector{T},
                          θs::Vector{T},
                          θ₀ᵢ::T,
                          fᵣᵢ::T) where {T<:AbstractFloat}
-    θ(f, p) = p[1] .+ 2atan.(2 * p[2] * (1 .- f ./ p[3]))
+    θ(f, p) = @. p[1] + 2atan(2 * p[2] * (1 - f / p[3]))
     p₀ = [θ₀ᵢ, 1e4, fᵣᵢ]
     fit = curve_fit(θ, fs, θs, p₀)
     return fit.param
