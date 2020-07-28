@@ -1,6 +1,6 @@
 module CircleFit
 
-using LinearAlgebra, NLsolve, JuMP, Ipopt
+using LinearAlgebra, NLsolve
 
 export FitCircle
 
